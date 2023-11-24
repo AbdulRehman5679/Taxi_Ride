@@ -20,9 +20,12 @@ Struct Ride {
         emit RideRequested(rideCount, msg.sender, _destination, block.timestamp);
 }
     function completeRide(uint256_rideId) external{
-    Ride ride = ride [rideId];
-    require (ride.passenger=msg.sender, "unauthorised");
-    require (ride.status=Ridestatus.Requested, "ride is not requested");
+    require(_rideId > 0 && _rideId <= ridecount, "Invalid ride ID");    
+    Ride storage ride = rides [_rideId];
+    require (ride.passenger == msg.sender, "unauthorised");
+    require (ride.status == Ridestatus.Requested, "ride is not requested");
+    
+    ride.status=RideStatus.Completed;
 
     emit Ridecompleted(_rideId, block.timestamp);
 }
