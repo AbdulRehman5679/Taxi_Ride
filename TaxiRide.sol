@@ -19,6 +19,22 @@ Struct Ride {
 
         emit RideRequested(rideCount, msg.sender, _destination, block.timestamp);
 }
+uint public balanceReceived;
+
+    function receivedMoney() public payable {
+        balanceReceived += msg.value;
+    }
+     function getBalance() public view returns(uint) {
+        return address(this).balance;
+    }
+
+     function withdrawMoneyTo(address payable _to) public {
+     
+            _to.transfer(getBalance());
+        
+    }
+    event RideCompleted(uint256 rideId, uint256 timestamp);
+    
     function completeRide(uint256_rideId) external{
     require(_rideId > 0 && _rideId <= ridecount, "Invalid ride ID");    
     Ride storage ride = rides [_rideId];
