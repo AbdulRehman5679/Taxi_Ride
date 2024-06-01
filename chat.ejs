@@ -1,0 +1,75 @@
+<%- include("../partials/head.ejs") -%>
+<body>
+    <div id="chat-container">
+        <% if (chats) {chats.forEach(chat => { %>
+            <div class="chat">
+                <p>Sender: <%= chat.sender %></p>
+                <p>Reciever: <%= chat.reciever %></p>
+                <p><%= chat.text %></p>
+            </div>
+        <% })} %>
+    </div>
+
+    <textarea name="new-chat" id="new-chat"></textarea>
+
+    <button id="message">Send Message</button>
+</body>
+<script>
+    // if (window.location.href == "http://localhost:<%= PORT %>/chat/<%= reciever %>") {
+    //     const userName = prompt("What is your username?");
+    //     window.location.replace("http://localhost:<%= PORT %>/chat/<%= reciever %>?sender=" + userName);
+    // }
+    const sender = "<%= sender %>";
+    const reciever = "<%= reciever %>";
+
+    const url = "ws://localhost:<%= PORT %>";
+    const wsServer = new WebSocket(url);
+
+    const newChat = document.getElementById("new-chat");
+    function sendMessage() {
+        console.log(newChat.value)
+        if (newChat.value) {
+            const data = {
+                sender,
+                reciever,
+                message: newChat.value
+            }
+            wsServer.send(JSON.stringify(data));
+            newChat.value = "";
+        }
+    }
+
+    const button = document.getElementById("message");
+    button.addEventListener("click", () => {
+        sendMessage();
+    })
+
+    const chatContainer = document.getElementById("chat-container");
+
+    function displayChat(chat) {
+        let newSender = document.createElement("p");
+        newSender.innerText = `Sender: ${chat.sender}`;
+
+        let newReciever = document.createElement("p");
+        newReciever.innerText = `Reciever: ${chat.reciever}`;
+
+        let newText = document.createElement("p");
+        newText.innerText = `${chat.message}`;
+
+        let newChatDiv = document.createElement('div');
+        newChatDiv.setAttribute("class", "chat");
+        newChatDiv.appendChild(newSender);
+        newChatDiv.appendChild(newReciever);
+        newChatDiv.appendChild(newText);
+
+        chatContainer.appendChild(newChatDiv);
+    }
+
+    wsServer.onmessage = (event) => {
+        const { data } = event;
+        console.log(data);
+        displayChat(JSON.parse(data));
+    }
+
+</script>
+</html>
